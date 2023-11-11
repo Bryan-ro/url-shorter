@@ -1,10 +1,10 @@
 export default class AppError extends Error {
-    public otherMessage?: any;
+    public otherMessage?: unknown;
     public statusCode: number;
 
-    constructor(message: string, statusCode: number, otherMessage?: any) {
+    constructor(message: string, statusCode?: number, otherMessage?: unknown) {
         super(message);
         this.otherMessage = otherMessage;
-        this.statusCode = statusCode;
+        this.statusCode = statusCode || 400;
     }
 }
