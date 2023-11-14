@@ -1,8 +1,8 @@
 import { Request, Response, Router } from "express";
 import Service from "./User.service";
-import { isValidData } from "../globalMiddlewares";
+import { isLoggedIn, isValidData } from "../globalMiddlewares";
 import { isUserExists } from "./middlewares";
-import { CreateUserDto } from "./dto";
+import { CreateUserDto, UpdateProfileDto } from "./dto";
 
 const service = new Service();
 const router = Router();
@@ -11,6 +11,7 @@ export class UserController {
     public routes () {
         router.post("/create", isValidData(CreateUserDto), isUserExists, this.createUser);
         router.post("/login", this.login);
+        router.put("/update", isLoggedIn, isValidData(UpdateProfileDto), this.updateProfile);
 
         return router;
     }
@@ -29,6 +30,15 @@ export class UserController {
         const login = await service.login(credentials);
 
         return res.status(login.statusCode).json({ ...login });
+    }
+
+    private async updateProfile(req: Request, res: Response) {
+        const data: UpdateProfileDto = req.body;
+        const userId = req.loginPayload.id;
+
+        const update = await service.updateProfile(data, userId);
+
+        return res.status(update.statusCode).json({ ...update });
     }
 }
 

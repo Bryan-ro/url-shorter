@@ -1,6 +1,6 @@
 declare namespace Express {
     interface Request {
-        loginPayload?: {
+        loginPayload: {
             id: number;
             name: string;
         }

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { CreateUserDto } from "./dto";
+import { CreateUserDto, UpdateProfileDto} from "./dto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../errors/AppError";
@@ -47,7 +47,34 @@ export default class UserService {
             expiresIn: "240h"
         });
 
-        return { message: "User logged in successfully", token: generateToken, statusCode: 200 };
+        return { message: "User logged in successfully", token: generateToken, user: user.name, statusCode: 200 };
     }
+
+    public async updateProfile(data: UpdateProfileDto, userId: number) {
+        const user = await prisma.user.findUnique({ where: { id: userId  } });
+
+        const comparePassword = await bcrypt.compare(data.currentPassword, user?.password || "");
+
+        if(!comparePassword) {
+            throw new AppError("Invalid password");
+        }
+
+        const newHashPassword = data.newPassword ? await bcrypt.hash(data.newPassword, 7) : undefined;
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                name: data.name, 
+                email: data.email,
+                phone: data.phone,
+                password: newHashPassword
+            }
+        });
+        
+        
+        return { message: "Profile successfully updated", statusCode: 200 };
+    }
+
+    public async resetPassword(){}
 }
 
