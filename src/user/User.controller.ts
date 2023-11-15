@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import Service from "./User.service";
 import { isLoggedIn, isValidData } from "../globalMiddlewares";
-import { isUserExists } from "./middlewares";
+import { isUserExists, isUserNotExists } from "./middlewares";
 import { CreateUserDto, UpdateProfileDto } from "./dto";
 
 const service = new Service();
@@ -12,6 +12,7 @@ export class UserController {
         router.post("/create", isValidData(CreateUserDto), isUserExists, this.createUser);
         router.post("/login", this.login);
         router.put("/update", isLoggedIn, isValidData(UpdateProfileDto), this.updateProfile);
+        router.patch("/password/reset/:email", isUserNotExists, this.resetPassword);
 
         return router;
     }
@@ -39,6 +40,14 @@ export class UserController {
         const update = await service.updateProfile(data, userId);
 
         return res.status(update.statusCode).json({ ...update });
+    }
+
+    private async resetPassword(req: Request, res: Response) {
+        const userEmail = req.params.email;
+
+        const passReset = await service.resetPassword(userEmail);
+        
+        return res.status(passReset.statusCode).json({ ...passReset });
     }
 }
 

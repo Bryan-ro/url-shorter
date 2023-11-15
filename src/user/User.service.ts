@@ -3,6 +3,7 @@ import { CreateUserDto, UpdateProfileDto} from "./dto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../errors/AppError";
+import recoverPassMail from "../mails/recoverPassMail";
 import "dotenv/config";
 
 const prisma = new PrismaClient();
@@ -75,6 +76,27 @@ export default class UserService {
         return { message: "Profile successfully updated", statusCode: 200 };
     }
 
-    public async resetPassword(){}
+    public async resetPassword(userEmail: string) {
+        const passwordCharacterOptions = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz1234567890";
+        let pass = "";
+
+        for(let i = 0; i < 8; i++) {
+            const choiceCharacter = Math.floor(Math.random() * passwordCharacterOptions.length + 1);
+
+            pass += passwordCharacterOptions[choiceCharacter];
+        }
+
+        await prisma.user.update({
+            where: { email: userEmail },
+            data: {
+                password: pass
+            }
+        });
+
+        await recoverPassMail(pass, userEmail);
+
+        return { message: "your password has been sent to your email", statusCode: 200 };
+        
+    }
 }
 
