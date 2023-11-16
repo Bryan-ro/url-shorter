@@ -25,8 +25,7 @@ model ShortUrl {
   id             Int    @id @default(autoincrement())
   originalUrl    String
   shortUrl       String @unique
-  infosUrl       String @unique
-  clicksQuantity Int
+  clicksQuantity Int @default(0)
   userId         Int?
 
   user User? @relation(fields: [userId], references: [id])

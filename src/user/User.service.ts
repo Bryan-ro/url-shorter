@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../errors/AppError";
 import recoverPassMail from "../mails/recoverPassMail";
+import generatePassword from "../utils/passwordGenerator";
 import "dotenv/config";
 
 const prisma = new PrismaClient();
@@ -92,14 +93,12 @@ export default class UserService {
     }
 
     public async resetPassword(userEmail: string) {
-        const passwordCharacterOptions = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz1234567890";
-        let pass = "";
-
-        for(let i = 0; i < 8; i++) {
-            const choiceCharacter = Math.floor(Math.random() * passwordCharacterOptions.length + 1);
-
-            pass += passwordCharacterOptions[choiceCharacter];
-        }
+        const pass = generatePassword({
+            length: 8,
+            lowerCase: true,
+            upperCase: true,
+            numbers: true
+        });
 
         await prisma.user.update({
             where: { email: userEmail },
