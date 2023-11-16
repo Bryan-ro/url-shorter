@@ -9,6 +9,21 @@ import "dotenv/config";
 const prisma = new PrismaClient();
 
 export default class UserService {
+    public async getOwnProfile(userId: number) {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                name: true,
+                email: true,
+                phone: true,
+            }
+        });
+
+        return { profile: user, statusCode: 200 };
+    }
+
     public async createUser (user: CreateUserDto) {
         await prisma.user.create({ 
             data: { 
@@ -89,14 +104,14 @@ export default class UserService {
         await prisma.user.update({
             where: { email: userEmail },
             data: {
-                password: pass
+                password: await bcrypt.hash(pass, 7)
             }
         });
 
+        // Send the password resetet to the user email
         await recoverPassMail(pass, userEmail);
 
-        return { message: "your password has been sent to your email", statusCode: 200 };
-        
+        return { message: "your password has been sent to your email", statusCode: 200 };  
     }
 }
 

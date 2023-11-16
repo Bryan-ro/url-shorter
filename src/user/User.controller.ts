@@ -9,12 +9,21 @@ const router = Router();
 
 export class UserController {
     public routes () {
+        router.get("/profile", isLoggedIn, this.getOwnProfile);
         router.post("/create", isValidData(CreateUserDto), isUserExists, this.createUser);
         router.post("/login", this.login);
         router.put("/update", isLoggedIn, isValidData(UpdateProfileDto), this.updateProfile);
         router.patch("/password/reset/:email", isUserNotExists, this.resetPassword);
 
         return router;
+    }
+
+    private async getOwnProfile(req: Request, res: Response) {
+        const userId = req.loginPayload.id;
+
+        const user = await service.getOwnProfile(userId);
+
+        return res.status(user.statusCode).json({ ...user });
     }
 
     private async createUser(req: Request, res: Response) {
