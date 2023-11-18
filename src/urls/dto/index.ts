@@ -1,1 +1,2 @@
-export { CreateUrlDto } from "./CrateUrlDto";
+export { CreateRandomUrlDto } from "./CrateRandomUrlDto";
+export { CreateCustomUrlDto } from "./CreateCustomUrlDto";
