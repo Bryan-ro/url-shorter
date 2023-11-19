@@ -9,8 +9,9 @@ const router = Router();
 
 export class UrlController {
     public routes () {
+        router.get("/:url", this.redirect);
         router.post("/short/random", getUserId, isValidData(CreateRandomUrlDto),  this.generateRandomUrl);
-        router.post("/short/custom", isLoggedIn, isValidData(CreateCustomUrlDto), this.generateCustomUrl)
+        router.post("/short/custom", isLoggedIn, isValidData(CreateCustomUrlDto), this.generateCustomUrl);
 
         return router;
     }
@@ -35,5 +36,13 @@ export class UrlController {
         const shortUrl = await service.generateCustomUrl(data, serverSecure + serverUrl, userId);
 
         return  res.status(shortUrl.statusCode).json(shortUrl.data);
+    }
+
+    private async redirect (req: Request, res: Response) {
+        const shortUrl = req.params.url;
+
+        const originalUrl = await service.redirect(shortUrl);
+        
+        return res.status(originalUrl.statusCode).redirect(originalUrl.originalUrl);
     }
 }

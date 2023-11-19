@@ -49,7 +49,7 @@ export default class UrlService {
         });
 
         if(ifUrlExist) {
-            throw new AppError("Try a other url");
+            throw new AppError("Try another url"); 
         }
 
         await prisma.shortUrl.create({
@@ -67,5 +67,29 @@ export default class UrlService {
             },
             statusCode: 200
         };
+    }
+
+    public async redirect (url: string) {
+        const urlInfos = await prisma.shortUrl.findUnique({ where: { shortUrl: url } });
+
+        if(!urlInfos) {
+            throw new AppError("Url does not exists", 400);
+        }
+
+        await prisma.shortUrl.update({
+            where: {
+                shortUrl: url
+            },
+            data: {
+                clicksQuantity: urlInfos.clicksQuantity + 1
+            }
+        });
+
+        return { originalUrl: urlInfos.originalUrl, statusCode: 301 };
+    } 
+
+
+    public getOwnUrls (userId: number) {
+        
     }
 }
