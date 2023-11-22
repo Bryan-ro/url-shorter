@@ -1,7 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, ShortUrl } from "@prisma/client";
 import { CreateRandomUrlDto, CreateCustomUrlDto } from "../urls/dto";
 import generateUrl from "../utils/passwordGenerator";
 import AppError from "../errors/AppError";
+import { url } from "inspector";
 
 const prisma = new PrismaClient();
 
@@ -70,11 +71,7 @@ export default class UrlService {
     }
 
     public async redirect (url: string) {
-        const urlInfos = await prisma.shortUrl.findUnique({ where: { shortUrl: url } });
-
-        if(!urlInfos) {
-            throw new AppError("Url does not exists", 400);
-        }
+        const urlInfos = await prisma.shortUrl.findUnique({ where: { shortUrl: url } }) as ShortUrl;
 
         await prisma.shortUrl.update({
             where: {
@@ -89,7 +86,13 @@ export default class UrlService {
     } 
 
 
-    public getOwnUrls (userId: number) {
-        
+    public async getOwnUrls (userId: number) {
+        const urls = await prisma.shortUrl.findMany({
+            where: {
+                userId: userId
+            }
+        });
+
+        return { urls, statusCode: 200 };
     }
 }

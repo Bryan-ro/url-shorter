@@ -2,14 +2,15 @@ import { Request, Response, Router } from "express";
 import Service from "./Url.service";
 import { CreateCustomUrlDto, CreateRandomUrlDto } from "./dto";
 import { isLoggedIn, isValidData } from "../globalMiddlewares";
-import { getUserId } from "./middlewares";
+import { getUserId, isUrlExist } from "./middlewares";
 
 const service = new Service();
 const router = Router();
 
 export class UrlController {
-    public routes () {
-        router.get("/:url", this.redirect);
+    public routes () {  
+        router.get("/urls", isLoggedIn, this.getOwnUrls);
+        router.get("/:url", isUrlExist, this.redirect);
         router.post("/short/random", getUserId, isValidData(CreateRandomUrlDto),  this.generateRandomUrl);
         router.post("/short/custom", isLoggedIn, isValidData(CreateCustomUrlDto), this.generateCustomUrl);
 
@@ -44,5 +45,14 @@ export class UrlController {
         const originalUrl = await service.redirect(shortUrl);
         
         return res.status(originalUrl.statusCode).redirect(originalUrl.originalUrl);
+    }
+
+    // Preciso retornar junto com a url do servidor
+    private async getOwnUrls (req: Request, res: Response) {
+        const userId = req.loginPayload.id;
+
+        const urls = await service.getOwnUrls(userId);
+
+        return res.status(urls.statusCode).json({ ...urls });
     }
 }
