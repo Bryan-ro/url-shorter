@@ -40,7 +40,7 @@ export default class UserService {
 
     public async login (credentials: string) {
         const buffer = Buffer.from((credentials).split(" ")[1], "base64").toString("utf-8");
-
+        
         const [ email, password ] = buffer.split(":");
 
         const user = await prisma.user.findUnique({ where: { email: email } });

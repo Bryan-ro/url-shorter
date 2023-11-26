@@ -1,10 +1,10 @@
-import { IsOptional, IsString, IsUrl, Length } from "class-validator";
+import { IsOptional, IsString, IsUrl, Length, MaxLength } from "class-validator";
 
 export class CreateCustomUrlDto {
     @IsUrl()
         originalUrl!: string;
 
     @IsString()
-    @Length(5, 30)
+    @MaxLength(20)
         customUrl!: string;
 }

@@ -12,6 +12,7 @@ export class UserController {
         router.get("/profile", isLoggedIn, this.getOwnProfile);
         router.post("/create", isValidData(CreateUserDto), isUserExists, this.createUser);
         router.post("/login", this.login);
+        router.post("/already-logged-in", isLoggedIn, this.alreadyLoggedIn);
         router.put("/update", isLoggedIn, isValidData(UpdateProfileDto), this.updateProfile);
         router.patch("/password/reset/:email", isUserNotExists, this.resetPassword);
 
@@ -40,6 +41,10 @@ export class UserController {
         const login = await service.login(credentials);
 
         return res.status(login.statusCode).json({ ...login });
+    }
+
+    private alreadyLoggedIn(req: Request, res: Response) {
+        return res.status(200).json({ message: "User already logged-in", statusCode: 200 })
     }
 
     private async updateProfile(req: Request, res: Response) {

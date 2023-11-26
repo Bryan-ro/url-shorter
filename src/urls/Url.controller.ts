@@ -13,8 +13,19 @@ export class UrlController {
         router.get("/:url", isUrlExist, this.redirect);
         router.post("/short/random", getUserId, isValidData(CreateRandomUrlDto),  this.generateRandomUrl);
         router.post("/short/custom", isLoggedIn, isValidData(CreateCustomUrlDto), this.generateCustomUrl);
+        router.delete("/delete/:shortUrl", isLoggedIn, this.deleteUrl);
 
         return router;
+    }
+
+    private async getOwnUrls (req: Request, res: Response) {
+        const userId = req.loginPayload.id;
+        const serverSecure = req.secure? "https://" : "http://";
+        const serverUrl = req.headers.host;
+
+        const urls = await service.getOwnUrls(userId, serverSecure+serverUrl);
+
+        return res.status(urls.statusCode).json({ ...urls });
     }
 
     private async generateRandomUrl (req: Request, res: Response) {
@@ -47,12 +58,12 @@ export class UrlController {
         return res.status(originalUrl.statusCode).redirect(originalUrl.originalUrl);
     }
 
-    // Preciso retornar junto com a url do servidor
-    private async getOwnUrls (req: Request, res: Response) {
+    private async deleteUrl (req: Request, res: Response) {
+        const shortUrl = req.params.shortUrl;
         const userId = req.loginPayload.id;
 
-        const urls = await service.getOwnUrls(userId);
+        const deletedUrl = await service.deleteUrl(userId, shortUrl);
 
-        return res.status(urls.statusCode).json({ ...urls });
+        res.status(deletedUrl.statusCode).json({ ...deletedUrl });
     }
 }

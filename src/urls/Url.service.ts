@@ -7,6 +7,25 @@ import { url } from "inspector";
 const prisma = new PrismaClient();
 
 export default class UrlService {
+    public async getOwnUrls (userId: number, serverUrl: string) {
+        const urls = await prisma.shortUrl.findMany({
+            where: {
+                userId: userId
+            }
+        });
+
+        return {
+            urls: urls.map((url) => {
+                return {
+                    originalUrl: url.originalUrl,
+                    shortUrl: `${serverUrl}/${url.shortUrl}`,
+                    clicksQuantity: url.clicksQuantity
+                }
+            }),
+            statusCode: 200
+        };
+    }
+
     public async generateRandomShortUrl(data: CreateRandomUrlDto, serverUrl: string, user?: { id: number, name: string }) {
         let url = "";
         let validUrl = false;
@@ -85,14 +104,23 @@ export default class UrlService {
         return { originalUrl: urlInfos.originalUrl, statusCode: 301 };
     } 
 
-
-    public async getOwnUrls (userId: number) {
-        const urls = await prisma.shortUrl.findMany({
+    public async deleteUrl (userId: number, shortUrl: string) {
+        const urlInfos = await prisma.shortUrl.findUnique({
             where: {
-                userId: userId
+                shortUrl: shortUrl
             }
         });
 
-        return { urls, statusCode: 200 };
+        if(urlInfos?.userId !== userId) {
+            throw new AppError("Not authorized", 401);
+        }
+
+        await prisma.shortUrl.delete({
+            where: {
+                shortUrl: shortUrl
+            }
+        });
+
+        return { message: "Url successfully deleted", statusCode: 200 };
     }
 }
