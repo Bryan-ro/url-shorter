@@ -12,6 +12,7 @@ const prisma = new PrismaClient();
 
 export const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
     const credential = String(req.cookies["token"]).replace("Bearer ", "");
+    console.log(credential)
 
     try {
         const payload = jwt.verify(credential, String(process.env.JWT_SECRET));

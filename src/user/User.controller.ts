@@ -44,7 +44,7 @@ export class UserController {
     }
 
     private alreadyLoggedIn(req: Request, res: Response) {
-        return res.status(200).json({ message: "User already logged-in", statusCode: 200 })
+        return res.status(200).json({ message: "User already logged-in", user: req.loginPayload.name, statusCode: 200 })
     }
 
     private async updateProfile(req: Request, res: Response) {

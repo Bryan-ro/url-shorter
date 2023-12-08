@@ -11,7 +11,7 @@ const app = express();
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "./views"));
 
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: "https://h9w1945b-5173.brs.devtunnels.ms" }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(routes);
