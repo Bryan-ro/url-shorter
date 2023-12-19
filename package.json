@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx tsx watch ./src/server.ts",
-    "build": "npx tsc",
+    "build": "npx tsc && copyfiles -u 1 src/**/*.pug dist/",
     "start": "node ./dist/server.js"
   },
   "keywords": [],
@@ -17,6 +17,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
+    "copyfiles": "^2.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
