@@ -45,13 +45,9 @@ export default class UserService {
 
         const user = await prisma.user.findUnique({ where: { email: email } });
 
-        if(!user) {
-            throw new AppError("Email does not exists.", 400);
-        }
+        const isValidPassword = await bcrypt.compare(password, user?.password ?? "");
 
-        const isValidPassword = await bcrypt.compare(password, user.password);
-
-        if(!isValidPassword) {
+        if(!isValidPassword || !user) {
             throw new AppError("Invalid email or password", 401);
         }
 
