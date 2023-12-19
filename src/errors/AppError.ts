@@ -1,5 +1,5 @@
 export default class AppError extends Error {
-    public otherMessage?: unknown;
+    public otherMessage?: any;
     public statusCode: number;
 
     constructor(message: string, statusCode?: number, otherMessage?: unknown) {

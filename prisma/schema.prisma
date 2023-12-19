@@ -23,7 +23,7 @@ model User {
 
 model ShortUrl {
   id             Int    @id @default(autoincrement())
-  originalUrl    String
+  originalUrl    String @db.LongText
   shortUrl       String @unique
   clicksQuantity Int @default(0)
   userId         Int?
