@@ -19,6 +19,7 @@ export default class UrlService {
                 return {
                     originalUrl: url.originalUrl,
                     shortUrl: `${serverUrl}/${url.shortUrl}`,
+                    shortUrlCode: url.shortUrl,
                     clicksQuantity: url.clicksQuantity
                 }
             }),
