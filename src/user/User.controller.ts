@@ -13,6 +13,7 @@ export class UserController {
         router.post("/create", isValidData(CreateUserDto), isUserExists, this.createUser);
         router.post("/login", this.login);
         router.post("/already-logged-in", isLoggedIn, this.alreadyLoggedIn);
+        router.post("/log-out", isLoggedIn, this.logOut);
         router.put("/update", isLoggedIn, isValidData(UpdateProfileDto), this.updateProfile);
         router.patch("/password/reset/:email", isUserNotExists, this.resetPassword);
 
@@ -40,11 +41,25 @@ export class UserController {
 
         const login = await service.login(credentials);
 
-        return res.status(login.statusCode).json({ ...login });
+        return res.status(login.statusCode).cookie("authorization", login.token, {
+            httpOnly: true,
+            maxAge: 604800000,
+            sameSite: "none",
+            secure: true
+        }).json(login.message);
     }
 
     private alreadyLoggedIn(req: Request, res: Response) {
         return res.status(200).json({ message: "User already logged-in", user: req.loginPayload.name, statusCode: 200 })
+    }
+
+    private logOut(req: Request, res: Response) {
+        res.cookie("authorization", "", {
+            httpOnly: true,
+            expires: new Date(0),
+            sameSite: "none",
+            secure: true
+        }).json({ message: "User logged-out" });
     }
 
     private async updateProfile(req: Request, res: Response) {
